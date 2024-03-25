@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-class ExampleUiLoadingAnimation extends StatefulWidget {
-  const ExampleUiLoadingAnimation({
+class NoConnectionView extends StatefulWidget {
+  const NoConnectionView({
     super.key,
   });
 
   @override
-  State<ExampleUiLoadingAnimation> createState() => _ExampleUiLoadingAnimationState();
+  State<NoConnectionView> createState() => _NoConnectionViewState();
 }
 
-class _ExampleUiLoadingAnimationState extends State<ExampleUiLoadingAnimation> {
+class _NoConnectionViewState extends State<NoConnectionView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
