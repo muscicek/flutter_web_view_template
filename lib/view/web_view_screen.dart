@@ -1,13 +1,18 @@
 import 'dart:async';
 
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_view/model/AppModel.dart';
 import 'package:web_view/view/no_connection_page.dart';
 import 'package:web_view/widget/bottom_navigation_bar_maker.dart';
+import 'package:web_view/widget/bottom_navigation_bar_v2_maker.dart';
 import 'package:web_view/widget/drawer_maker.dart';
+import 'package:web_view/widget/fab_maker.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 bool firstTime = true;
@@ -197,112 +202,117 @@ class _WebViewScreenState extends State<WebViewScreen> {
       },
       child: SafeArea(
         child: Scaffold(
-          //extend body navigation barın diğer style'ında fab'ının arkasındaki boşluğu silmek için
-          extendBody: true,
-          key: _scaffoldKey,
+            //extend body navigation barın diğer style'ında fab'ının arkasındaki boşluğu silmek için
+            extendBody: true,
+            key: _scaffoldKey,
 
-          //App bar ve Header Menü
+            //App bar ve Header Menü
 
-          appBar: widget.appModel.appBar.status
-              ? AppBar(
-                  backgroundColor: Colors.white,
-                  centerTitle: true,
-                  leading: IconButton(
-                    icon: Icon(
-                      Icons.list,
-                      size: 35,
+            appBar: widget.appModel.appBar.status
+                ? AppBar(
+                    backgroundColor: Colors.white,
+                    centerTitle: true,
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.list,
+                        size: 35,
+                      ),
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
                     ),
-                    onPressed: () {
-                      _scaffoldKey.currentState?.openDrawer();
-                    },
-                  ),
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: IconButton(
-                        icon: Icon(Icons.refresh, size: 35),
-                        onPressed: () {
-                          setState(() {
-                            controller.reload();
-                          });
-                        },
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: IconButton(
+                          icon: Icon(Icons.refresh, size: 35),
+                          onPressed: () {
+                            setState(() {
+                              controller.reload();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                    title: Image.network(widget.appModel.appBar.logo, height: 35),
+                  )
+                : null,
+
+            // Mobile Menü Status durumu gelince burada kontrol edilir.
+            drawer: widget.appModel.status == true
+                ? CustomDrawer.maker(
+                    mobileMenuList: widget.appModel.mobileMenu,
+                    logoUrl: widget.appModel.appBar.logo,
+                    controller: controller,
+                    scaffoldKey: _scaffoldKey,
+                  )
+                : null,
+            body: loading == true
+                ? Shimmer.fromColors(
+                    baseColor: Colors.grey.shade500,
+                    highlightColor: Colors.grey.shade100,
+                    enabled: true,
+                    child: Container(
+                      color: Colors.black26,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.purple,
+                        ),
                       ),
                     ),
-                  ],
-                  title: Image.network(widget.appModel.appBar.logo, height: 35),
-                )
-              : null,
+                  )
+                : _connectionStatus == ConnectivityResult.mobile || _connectionStatus == ConnectivityResult.wifi
+                    ? WebViewWidget(
+                        controller: controller,
+                      )
+                    : NoConnectionView(),
 
-          // Mobile Menü Status durumu gelince burada kontrol edilir.
-          drawer: true == true
-              ? CustomDrawer.maker(
-                  mobileMenuList: widget.appModel.mobileMenu,
-                  logoUrl: widget.appModel.appBar.logo,
-                  controller: controller,
-                  scaffoldKey: _scaffoldKey,
-                )
-              : null,
+            //Bottom Navigation Bar'ın diğer style'ı için floating action button kullanılacak
 
-          body: loading == true
-              ? Shimmer.fromColors(
-                  baseColor: Colors.grey.shade500,
-                  highlightColor: Colors.grey.shade100,
-                  enabled: true,
-                  child: Container(
-                    color: Colors.black26,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.purple,
-                      ),
-                    ),
-                  ),
-                )
-              : _connectionStatus == ConnectivityResult.mobile || _connectionStatus == ConnectivityResult.wifi
-                  ? WebViewWidget(
-                      controller: controller,
-                    )
-                  : NoConnectionView(),
-
-          //Bottom Navigation Bar'ın diğer style'ı için floating action button kullanılacak
-
-          /*floatingActionButton: FloatingActionButton(
-            shape: CircleBorder(),
-            backgroundColor: Colors.green[200],
-            child: Icon(
-              Icons.person,
-              color: _selectedIndex == 4 ? Colors.green : Colors.white,
-              size: 35,
-            ),
-            onPressed: () {
-              _onItemTapped(4);
-            },
-            //params
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-          bottomNavigationBar: AnimatedBottomNavigationBar(
-            backgroundColor: Colors.green[200],
-            icons: [Icons.home, Icons.search, Icons.favorite, Icons.local_activity],
-            activeIndex: _selectedIndex,
-            activeColor: Colors.green,
-            inactiveColor: Colors.white,
-            gapLocation: GapLocation.end,
-            elevation: 0,
-            notchSmoothness: NotchSmoothness.defaultEdge,
-            //leftCornerRadius: 32,
-            //rightCornerRadius: 32,
-            iconSize: 35,
-            onTap: (index) => setState(() => _onItemTapped(index)),
-            //other params
-          ),*/
-          bottomNavigationBar: CustomNavigationBar.maker(
-              bottomMenu: widget.appModel.bottomMenu,
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed),
-        ),
+            floatingActionButton: getFab(widget.appModel.bottomMenu.style),
+            floatingActionButtonLocation: getFabLocation(widget.appModel.bottomMenu.style),
+            bottomNavigationBar: getBottomNavigationBar(widget.appModel.bottomMenu.style)),
       ),
     );
+  }
+
+  Widget? getFab(String style) {
+    switch (style) {
+      case "style-1":
+        return null;
+
+      default:
+        return CustomFab.maker(
+            bottomMenu: widget.appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
+    }
+  }
+
+  Widget getBottomNavigationBar(String style) {
+    switch (style) {
+      case "style-1":
+        return CustomNavigationBar.maker(
+            bottomMenu: widget.appModel.bottomMenu,
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed);
+      default:
+        return CustomNavigationBarV2.maker(
+            bottomMenu: widget.appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
+    }
+  }
+
+  FloatingActionButtonLocation getFabLocation(String style) {
+    switch (style) {
+      case "style-2":
+        return FloatingActionButtonLocation.endDocked;
+      case "style-3":
+        return FloatingActionButtonLocation.centerDocked;
+      case "style-4":
+        return FloatingActionButtonLocation.centerDocked;
+      default:
+        return FloatingActionButtonLocation.centerDocked;
+    }
   }
 }

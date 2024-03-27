@@ -18,8 +18,8 @@ class _SplashScreenViewState extends State<SplashScreenView> with DioServices {
   @override
   void initState() {
     super.initState();
-    initialData();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
+    initialData();
   }
 
   @override

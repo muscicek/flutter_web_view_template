@@ -6,6 +6,7 @@ class AppModel {
   List<String> displayNoneClasses;
   BottomMenuModel bottomMenu;
   AppBarModel appBar;
+  bool status;
   List<MobileMenuModel> mobileMenu;
   String loadingIcon;
   List<String> accessLink;
@@ -16,6 +17,7 @@ class AppModel {
     required this.displayNoneClasses,
     required this.bottomMenu,
     required this.appBar,
+    required this.status,
     required this.mobileMenu,
     required this.loadingIcon,
     required this.accessLink,
@@ -27,6 +29,7 @@ class AppModel {
         displayNoneClasses: List<String>.from(json["display_none_classes"].map((x) => x)),
         bottomMenu: BottomMenuModel.fromJson(json["bottom_menu"]),
         appBar: AppBarModel.fromJson(json["app_bar"]),
+        status: json["status"],
         mobileMenu: List<MobileMenuModel>.from(json["mobile_menu"].map((x) => MobileMenuModel.fromJson(x))),
         loadingIcon: json["loading_icon"],
         accessLink: List<String>.from(json["access_link"].map((x) => x)),
@@ -38,6 +41,7 @@ class AppModel {
         "display_none_classes": List<dynamic>.from(displayNoneClasses.map((x) => x)),
         "bottom_menu": bottomMenu.toJson(),
         "app_bar": appBar.toJson(),
+        "status": status,
         "mobile_menu": List<dynamic>.from(mobileMenu.map((x) => x.toJson())),
         "loading_icon": loadingIcon,
         "access_link": List<dynamic>.from(accessLink.map((x) => x)),

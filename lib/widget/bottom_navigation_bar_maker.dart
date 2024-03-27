@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:web_view/model/BottomMenuModel.dart';
 
-
 class CustomNavigationBar extends StatelessWidget {
   final BottomMenuModel bottomMenu;
   final List<BottomNavigationBarItem> items;
   final int currentIndex;
   final void Function(int) onTap;
   final BottomNavigationBarType type;
-  
-  CustomNavigationBar(
-      {required this.items,
-      required this.currentIndex,
-      required this.onTap,
-      required this.type,
-      required this.bottomMenu, });
+
+  CustomNavigationBar({
+    required this.items,
+    required this.currentIndex,
+    required this.onTap,
+    required this.type,
+    required this.bottomMenu,
+  });
 
   factory CustomNavigationBar.maker({
     required BottomMenuModel bottomMenu,
     required int currentIndex,
     required void Function(int) onTap,
     required BottomNavigationBarType type,
-
   }) {
     List<Icon> icon_list = [];
     bottomMenu.links.forEach((element) {

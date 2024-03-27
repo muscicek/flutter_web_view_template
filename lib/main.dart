@@ -14,6 +14,9 @@ void main() async {
     print(OneSignal.User.pushSubscription.token);
     print(state.current.jsonRepresentation());
   });
+  OneSignal.Notifications.addClickListener((event) {
+    print(event.notification.additionalData.toString());
+  });
   runApp(MyApp());
 }
 
