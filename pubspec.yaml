@@ -44,6 +44,7 @@ dependencies:
   shimmer: ^3.0.0
   dio: ^5.4.1
   url_launcher: ^6.2.5
+  salomon_bottom_bar: ^3.3.2
 dev_dependencies:
 
   flutter_test:
@@ -92,10 +93,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-flutter_native_splash:
-  color: "#F9F6EE"
-  image: assets/decoration.png
-  android_12:
-    color: "#F9F6EE"
-    image: assets/decoration.png
-  web: false

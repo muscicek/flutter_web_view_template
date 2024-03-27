@@ -6,46 +6,30 @@ class AppModel {
   List<String> displayNoneClasses;
   BottomMenuModel bottomMenu;
   AppBarModel appBar;
-  bool status;
-  List<MobileMenuModel> mobileMenu;
+  MobileMenuModel mobileMenu;
   String loadingIcon;
-  List<String> accessLink;
-  String splashIcon;
-  int splashTime;
 
   AppModel({
     required this.displayNoneClasses,
     required this.bottomMenu,
     required this.appBar,
-    required this.status,
     required this.mobileMenu,
     required this.loadingIcon,
-    required this.accessLink,
-    required this.splashIcon,
-    required this.splashTime,
   });
 
   factory AppModel.fromJson(Map<String, dynamic> json) => AppModel(
         displayNoneClasses: List<String>.from(json["display_none_classes"].map((x) => x)),
         bottomMenu: BottomMenuModel.fromJson(json["bottom_menu"]),
         appBar: AppBarModel.fromJson(json["app_bar"]),
-        status: json["status"],
-        mobileMenu: List<MobileMenuModel>.from(json["mobile_menu"].map((x) => MobileMenuModel.fromJson(x))),
+        mobileMenu: MobileMenuModel.fromJson(json["mobile_menu"]),
         loadingIcon: json["loading_icon"],
-        accessLink: List<String>.from(json["access_link"].map((x) => x)),
-        splashIcon: json["splash_icon"],
-        splashTime: json["splash_time"],
       );
 
   Map<String, dynamic> toJson() => {
         "display_none_classes": List<dynamic>.from(displayNoneClasses.map((x) => x)),
         "bottom_menu": bottomMenu.toJson(),
         "app_bar": appBar.toJson(),
-        "status": status,
-        "mobile_menu": List<dynamic>.from(mobileMenu.map((x) => x.toJson())),
+        "mobile_menu": mobileMenu.toJson(),
         "loading_icon": loadingIcon,
-        "access_link": List<dynamic>.from(accessLink.map((x) => x)),
-        "splash_icon": splashIcon,
-        "splash_time": splashTime,
       };
 }

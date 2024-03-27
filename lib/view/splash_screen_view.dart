@@ -48,7 +48,7 @@ class _SplashScreenViewState extends State<SplashScreenView> with DioServices {
       context,
       MaterialPageRoute(
           builder: (context) => WebViewScreen(
-                appModel: appModel,
+               
               )),
     );
   }

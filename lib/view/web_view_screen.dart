@@ -8,24 +8,27 @@ import 'package:flutter/widgets.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_view/model/AppModel.dart';
+import 'package:web_view/services/dio_services.dart';
 import 'package:web_view/view/no_connection_page.dart';
 import 'package:web_view/widget/bottom_navigation_bar_maker.dart';
+import 'package:web_view/widget/bottom_navigation_bar_maker_v3.dart';
+import 'package:web_view/widget/bottom_navigation_bar_maker_v4.dart';
 import 'package:web_view/widget/bottom_navigation_bar_v2_maker.dart';
 import 'package:web_view/widget/drawer_maker.dart';
 import 'package:web_view/widget/fab_maker.dart';
+import 'package:web_view/widget/loading_item.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 bool firstTime = true;
 
 class WebViewScreen extends StatefulWidget {
-  const WebViewScreen({super.key, required this.appModel});
+  const WebViewScreen({super.key});
 
-  final AppModel appModel;
   @override
   State<WebViewScreen> createState() => _WebViewScreenState();
 }
 
-class _WebViewScreenState extends State<WebViewScreen> {
+class _WebViewScreenState extends State<WebViewScreen> with DioServices {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -33,18 +36,26 @@ class _WebViewScreenState extends State<WebViewScreen> {
   final controller = WebViewController();
   int _selectedIndex = 0;
   var loading = true;
+  var splashScreen = true;
+  late AppModel appModel;
   var currentUrl = "https://perukmarket.com.tr/";
 
   void _onItemTapped(int index) {
     setState(() {
       loading = true;
-      controller.loadRequest(Uri.parse(widget.appModel.bottomMenu.links.elementAt(index).link));
+      controller.loadRequest(Uri.parse(appModel.bottomMenu.links.elementAt(index).link));
       _selectedIndex = index;
     });
   }
 
+  Future<void> initialData() async {
+    appModel = await getData();
+    print(appModel.loadingIcon);
+  }
+
   Future<void> initConnectivity() async {
     late ConnectivityResult result;
+
     try {
       result = await _connectivity.checkConnectivity();
     } catch (e) {
@@ -133,8 +144,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 },
                 onPageFinished: (String url) {
                   late String jsCode;
-                  if (!widget.appModel.displayNoneClasses.isEmpty) {
-                    widget.appModel.displayNoneClasses.forEach((element) {
+                  if (!appModel.displayNoneClasses.isEmpty) {
+                    appModel.displayNoneClasses.forEach((element) {
                       jsCode = "var elements = document.getElementsByClassName('$element');"
                           "for (var i = 0; i < elements.length; i++) {"
                           "  elements[i].style.display = 'none';"
@@ -146,6 +157,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                   setState(() {
                     debugPrint("finished");
                     loading = false;
+                    splashScreen = false;
                   });
                 },
                 onWebResourceError: (WebResourceError error) {},
@@ -182,8 +194,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
   @override
   void initState() {
     super.initState();
+    setup();
+  }
 
-    initConnectivity();
+  Future<void> setup() async {
+    await initialData();
+    await initConnectivity();
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
@@ -200,82 +216,98 @@ class _WebViewScreenState extends State<WebViewScreen> {
           return true;
         }
       },
-      child: SafeArea(
-        child: Scaffold(
-            //extend body navigation barın diğer style'ında fab'ının arkasındaki boşluğu silmek için
-            extendBody: true,
-            key: _scaffoldKey,
-
-            //App bar ve Header Menü
-
-            appBar: widget.appModel.appBar.status
-                ? AppBar(
-                    backgroundColor: Colors.white,
-                    centerTitle: true,
-                    leading: IconButton(
-                      icon: Icon(
-                        Icons.list,
-                        size: 35,
-                      ),
-                      onPressed: () {
-                        _scaffoldKey.currentState?.openDrawer();
-                      },
-                    ),
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: IconButton(
-                          icon: Icon(Icons.refresh, size: 35),
-                          onPressed: () {
-                            setState(() {
-                              controller.reload();
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                    title: Image.network(widget.appModel.appBar.logo, height: 35),
-                  )
-                : null,
-
-            // Mobile Menü Status durumu gelince burada kontrol edilir.
-            drawer: widget.appModel.status == true
-                ? CustomDrawer.maker(
-                    mobileMenuList: widget.appModel.mobileMenu,
-                    logoUrl: widget.appModel.appBar.logo,
-                    controller: controller,
-                    scaffoldKey: _scaffoldKey,
-                  )
-                : null,
-            body: loading == true
-                ? Shimmer.fromColors(
-                    baseColor: Colors.grey.shade500,
-                    highlightColor: Colors.grey.shade100,
-                    enabled: true,
-                    child: Container(
-                      color: Colors.black26,
-                      width: MediaQuery.of(context).size.width,
+      child: splashScreen == true
+          ? Scaffold(
+              body: Center(
+                  child: SizedBox(
                       height: MediaQuery.of(context).size.height,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ),
-                  )
-                : _connectionStatus == ConnectivityResult.mobile || _connectionStatus == ConnectivityResult.wifi
-                    ? WebViewWidget(
-                        controller: controller,
-                      )
-                    : NoConnectionView(),
+                      width: 200,
+                      child: Image(
+                          image: NetworkImage(
+                              "https://perukmarket.com.tr/image/cache/catalog/perukmarket_logo-220x50.png")))))
+          : SafeArea(
+              child: Scaffold(
+                  //extend body navigation barın diğer style'ında fab'ının arkasındaki boşluğu silmek için
+                  extendBody: true,
+                  key: _scaffoldKey,
 
-            //Bottom Navigation Bar'ın diğer style'ı için floating action button kullanılacak
+                  //App bar ve Header Menü
 
-            floatingActionButton: getFab(widget.appModel.bottomMenu.style),
-            floatingActionButtonLocation: getFabLocation(widget.appModel.bottomMenu.style),
-            bottomNavigationBar: getBottomNavigationBar(widget.appModel.bottomMenu.style)),
-      ),
+                  appBar: appModel.appBar.status
+                      ? AppBar(
+                          backgroundColor: Colors.white,
+                          centerTitle: true,
+                          leading: IconButton(
+                            icon: Icon(
+                              Icons.list,
+                              size: 35,
+                            ),
+                            onPressed: () {
+                              _scaffoldKey.currentState?.openDrawer();
+                            },
+                          ),
+                          actions: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: IconButton(
+                                icon: Icon(Icons.refresh, size: 35),
+                                onPressed: () {
+                                  setState(() {
+                                    controller.reload();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                          title: Image.network(appModel.appBar.logo, height: 35),
+                        )
+                      : null,
+                  drawer: appModel.mobileMenu.status == true
+                      ? CustomDrawer.maker(
+                          mobileMenuList: appModel.mobileMenu,
+                          logoUrl: appModel.appBar.logo,
+                          controller: controller,
+                          scaffoldKey: _scaffoldKey,
+                        )
+                      : null,
+                  body: loading == true
+                      ? getLoadingStyle(appModel.loadingIcon)
+                      : _connectionStatus == ConnectivityResult.mobile || _connectionStatus == ConnectivityResult.wifi
+                          ? WebViewWidget(
+                              controller: controller,
+                            )
+                          : NoConnectionView(),
+
+                  //Bottom Navigation Bar'ın diğer style'ı için floating action button kullanılacak
+
+                  floatingActionButton: getFab(appModel.bottomMenu.style),
+                  floatingActionButtonLocation: getFabLocation(appModel.bottomMenu.style),
+                  bottomNavigationBar: getBottomNavigationBar(appModel.bottomMenu.style)),
+            ),
     );
+  }
+
+  Widget getLoadingStyle(String style) {
+    switch (style) {
+      case "icon":
+        return Shimmer.fromColors(
+          baseColor: Colors.grey.shade500,
+          highlightColor: Colors.grey.shade100,
+          enabled: true,
+          child: Container(
+            color: Colors.black26,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Colors.purple,
+              ),
+            ),
+          ),
+        );
+      default:
+        return Loading_Item();
+    }
   }
 
   Widget? getFab(String style) {
@@ -284,22 +316,33 @@ class _WebViewScreenState extends State<WebViewScreen> {
         return null;
 
       default:
-        return CustomFab.maker(
-            bottomMenu: widget.appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
+        return CustomFab.maker(bottomMenu: appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
     }
   }
 
   Widget getBottomNavigationBar(String style) {
     switch (style) {
+      case "style-6":
+        return CustomNavigationBarV4.maker(
+            bottomMenu: appModel.bottomMenu,
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped
+           );
       case "style-1":
         return CustomNavigationBar.maker(
-            bottomMenu: widget.appModel.bottomMenu,
+            bottomMenu: appModel.bottomMenu,
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed);
+      case "style-5":
+        return CustomNavigationBarV3.maker(
+            bottomMenu: appModel.bottomMenu,
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed);
       default:
         return CustomNavigationBarV2.maker(
-            bottomMenu: widget.appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
+            bottomMenu: appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
     }
   }
 

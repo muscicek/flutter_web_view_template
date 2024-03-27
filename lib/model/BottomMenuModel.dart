@@ -1,10 +1,10 @@
-import 'package:web_view/model/MobileMenuModel.dart';
+import 'package:web_view/model/BottomMenuLinkModel.dart';
 import 'package:web_view/model/SettingModel.dart';
 
 class BottomMenuModel {
   bool status;
   String style;
-  List<MobileMenuModel> links;
+  List<BottomMenuLinkModel> links;
   SettingModel setting;
 
   BottomMenuModel({
@@ -17,7 +17,7 @@ class BottomMenuModel {
   factory BottomMenuModel.fromJson(Map<String, dynamic> json) => BottomMenuModel(
         status: json["status"],
         style: json["style"],
-        links: List<MobileMenuModel>.from(json["links"].map((x) => MobileMenuModel.fromJson(x))),
+        links: List<BottomMenuLinkModel>.from(json["links"].map((x) => BottomMenuLinkModel.fromJson(x))),
         setting: SettingModel.fromJson(json["setting"]),
       );
 

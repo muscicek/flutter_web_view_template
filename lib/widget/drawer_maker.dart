@@ -4,7 +4,7 @@ import 'package:web_view/model/MobileMenuModel.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final List<MobileMenuModel> mobileMenuList;
+  final MobileMenuModel mobileMenuList;
   final List<Widget> items;
   final String logoUrl;
 
@@ -15,9 +15,9 @@ class CustomDrawer extends StatelessWidget {
   });
 
   factory CustomDrawer.maker(
-      {required List<MobileMenuModel> mobileMenuList, required logoUrl, required controller, required scaffoldKey}) {
+      {required MobileMenuModel mobileMenuList, required logoUrl, required controller, required scaffoldKey}) {
     List<Icon> icon_list = [];
-    mobileMenuList.forEach((element) {
+    mobileMenuList.links.forEach((element) {
       switch (element.icon) {
         case "home":
           icon_list.add(Icon(Icons.home));
@@ -42,12 +42,12 @@ class CustomDrawer extends StatelessWidget {
       mobileMenuList: mobileMenuList,
       logoUrl: logoUrl,
       items: List.generate(
-          mobileMenuList.length,
-          (index) => newMethod(mobileMenuList.elementAt(index).link, icon_list.elementAt(index),
-                  mobileMenuList.elementAt(index).title, () {
-                controller.loadRequest(Uri.parse(mobileMenuList.elementAt(index).link));
+          mobileMenuList.links.length,
+          (index) => newMethod(mobileMenuList.links.elementAt(index).link, icon_list.elementAt(index),
+                  mobileMenuList.links.elementAt(index).title, () {
+                controller.loadRequest(Uri.parse(mobileMenuList.links.elementAt(index).link));
                 scaffoldKey.currentState?.closeDrawer();
-              }, controller, scaffoldKey)),
+              })),
     );
   }
 
@@ -93,26 +93,28 @@ class CustomDrawer extends StatelessWidget {
   }
 }
 
-Widget newMethod(String url, Icon head_icon, String text, Function() onTap, WebViewController controller,
-    GlobalKey<ScaffoldState> scaffoldKey) {
+Widget newMethod(String url, Icon head_icon, String text, Function() onTap) {
   return GestureDetector(
     onTap: onTap,
-    child: Row(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          child: head_icon,
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 10.0),
-          child: Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300)),
-        ),
-        Spacer(),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Icon(Icons.chevron_right_sharp, size: 28),
-        ),
-      ],
+    child: Container(
+      color: Colors.white,
+      child: Row(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            child: head_icon,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 10.0),
+            child: Text(text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300)),
+          ),
+          Spacer(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Icon(Icons.chevron_right_sharp, size: 28),
+          ),
+        ],
+      ),
     ),
   );
 }

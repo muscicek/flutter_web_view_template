@@ -1,24 +1,29 @@
+import 'package:web_view/model/MobileMenuLinkModel.dart';
 
 class MobileMenuModel {
-  String icon;
+  bool status;
   String title;
-  String link;
+  String description;
+  List<MobileMenuLinkModel> links;
 
   MobileMenuModel({
-    required this.icon,
+    required this.status,
     required this.title,
-    required this.link,
+    required this.description,
+    required this.links,
   });
 
   factory MobileMenuModel.fromJson(Map<String, dynamic> json) => MobileMenuModel(
-        icon: json["icon"],
+        status: json["status"],
+        description: json["description"],
         title: json["title"],
-        link: json["link"],
+        links: List<MobileMenuLinkModel>.from(json["links"].map((x) => MobileMenuLinkModel.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "icon": icon,
+        "description": description,
         "title": title,
-        "link": link,
+        "links": List<dynamic>.from(links.map((x) => x.toJson())),
+        "status": status,
       };
 }

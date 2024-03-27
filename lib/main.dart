@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:web_view/view/splash_screen_view.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:web_view/view/web_view_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        "/": (_) => SplashScreenView(),
+        "/": (_) => WebViewScreen(),
       },
     );
   }
