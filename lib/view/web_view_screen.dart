@@ -1,12 +1,9 @@
 import 'dart:async';
-
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:web_view/constants/AppConstants.dart';
 import 'package:web_view/model/AppModel.dart';
 import 'package:web_view/services/dio_services.dart';
 import 'package:web_view/view/no_connection_page.dart';
@@ -38,7 +35,7 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
   var loading = true;
   var splashScreen = true;
   late AppModel appModel;
-  var currentUrl = "https://perukmarket.com.tr/";
+  var currentUrl = AppConstants.APP_MAIN_URL;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -102,45 +99,25 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
                 },
                 onUrlChange: (change) {
                   // Bottom Navigation Bar'ın aktif indexini belirlemek için url değişikliğinde url kontrolü.
-                  switch (change.url) {
-                    case "https://perukmarket.com.tr/":
-                      setState(() {
-                        _selectedIndex = 0;
-                      });
-                      break;
-                    case "https://perukmarket.com.tr/index.php?route=product/search":
-                      setState(() {
-                        _selectedIndex = 1;
-                      });
-                      break;
-                    case "https://perukmarket.com.tr/alisveris-sepetim":
-                      setState(() {
-                        _selectedIndex = 2;
-                      });
-                      break;
-                    case "https://perukmarket.com.tr/hakkimizda":
-                      setState(() {
-                        _selectedIndex = 3;
-                      });
-                      break;
-                    case "https://perukmarket.com.tr/giris-yap":
-                      setState(() {
-                        _selectedIndex = 4;
-                      });
-                      break;
-
-                    default:
-                  }
                   setState(() {
                     print("change");
                     loading = true;
                   });
+                  if (change.url! == appModel.bottomMenu.links.elementAt(0).link) {
+                    _selectedIndex = 0;
+                  } else if (change.url! == appModel.bottomMenu.links.elementAt(1).link) {
+                    _selectedIndex = 1;
+                  } else if (change.url! == appModel.bottomMenu.links.elementAt(2).link) {
+                    _selectedIndex = 2;
+                  } else if (change.url! == appModel.bottomMenu.links.elementAt(3).link) {
+                    _selectedIndex = 3;
+                  } else if (change.url! == appModel.bottomMenu.links.elementAt(4).link) {
+                    _selectedIndex = 4;
+                  }
                 },
                 onPageStarted: (String url) {
-                  setState(() {
-                    print("change");
-                    loading = true;
-                  });
+                  print("change");
+                  loading = true;
                 },
                 onPageFinished: (String url) {
                   late String jsCode;
@@ -153,7 +130,7 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
                       controller.runJavaScript(jsCode);
                     });
                   }
-
+                  
                   setState(() {
                     debugPrint("finished");
                     loading = false;
@@ -162,13 +139,12 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
                 },
                 onWebResourceError: (WebResourceError error) {},
                 onNavigationRequest: (NavigationRequest request) async {
-                  if (request.url.startsWith("https://perukmarket.com.tr/")) {
+                  if (request.url.startsWith(AppConstants.APP_MAIN_URL)) {
                     return NavigationDecision.navigate;
                   }
 
                   //launch Url tıklanan linkin bir uygulaması var ise o uygulamaya gitmeye yarıyor
                   if (!await launchUrl(Uri.parse(request.url))) {
-                    print("asdsa");
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Bu sayfaya geçişe izin verilmiyor'),
@@ -222,9 +198,7 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
                   child: SizedBox(
                       height: MediaQuery.of(context).size.height,
                       width: 200,
-                      child: Image(
-                          image: NetworkImage(
-                              "https://perukmarket.com.tr/image/cache/catalog/perukmarket_logo-220x50.png")))))
+                      child: Image(image: NetworkImage(AppConstants.SPLASH_SCREEN_LOGO)))))
           : SafeArea(
               child: Scaffold(
                   //extend body navigation barın diğer style'ında fab'ının arkasındaki boşluğu silmek için
@@ -314,7 +288,12 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
     switch (style) {
       case "style-1":
         return null;
-
+      case "style-4":
+        return null;
+      case "style-5":
+        return null;
+      case "style-6":
+        return null;
       default:
         return CustomFab.maker(bottomMenu: appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
     }
@@ -324,10 +303,7 @@ class _WebViewScreenState extends State<WebViewScreen> with DioServices {
     switch (style) {
       case "style-6":
         return CustomNavigationBarV4.maker(
-            bottomMenu: appModel.bottomMenu,
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped
-           );
+            bottomMenu: appModel.bottomMenu, currentIndex: _selectedIndex, onTap: _onItemTapped);
       case "style-1":
         return CustomNavigationBar.maker(
             bottomMenu: appModel.bottomMenu,

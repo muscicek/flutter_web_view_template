@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:web_view/constants/AppConstants.dart';
 import 'package:web_view/view/web_view_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
 
-  OneSignal.initialize("03f94a7a-8419-437f-92d9-652a312c3539");
+  OneSignal.initialize(AppConstants.ONE_SIGNAL_APP_ID);
   OneSignal.Notifications.requestPermission(true);
   OneSignal.User.pushSubscription.addObserver((state) {
     print(OneSignal.User.pushSubscription.optedIn);
@@ -27,7 +28,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
